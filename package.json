@@ -1,0 +1,31 @@
+{
+  "name": "koa-resource-routes",
+  "version": "0.1.0",
+  "description": "Easy RESTful resource routing with Koa",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp build",
+    "prepublish": "gulp build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amsardesai/koa-resource-routes.git"
+  },
+  "author": "Ankit Sardesai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amsardesai/koa-resource-routes/issues"
+  },
+  "homepage": "https://github.com/amsardesai/koa-resource-routes#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
+    "gulp-size": "^2.0.0"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "path-to-regexp": "^1.2.1",
+    "pluralize": "^1.2.1"
+  }
+}
