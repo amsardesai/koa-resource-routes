@@ -1,6 +1,6 @@
 # koa-resource-routes
 
-**koa-resource-routes** is a plugin for [Koa](http://koajs.com/) that makes it easy to specify RESTful routes.
+A lightweight middleware for [Koa](http://koajs.com/) that makes it easy to specify RESTful routes for resources.
 
 ## Installation
 
