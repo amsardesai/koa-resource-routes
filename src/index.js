@@ -25,6 +25,12 @@ function* getRESTRoutes(resources, prefix, resourceName = '') {
   for (const key in resources) {
     // If we encounter an action, append a new route
     if (includes(VALID_ACTIONS, key)) {
+      // Check for invariant violations
+      if (typeof resources[key] !== 'function')
+        throw Error('Actions must be functions.');
+      if (resourceName === '')
+        throw Error('Action functions must be put in an object.');
+
       switch (key) {
       case 'index': yield {
         method: 'GET',
