@@ -6,6 +6,15 @@ import pluralize from 'pluralize';
 
 const VALID_ACTIONS = ['index', 'show', 'create', 'new', 'edit', 'update', 'destroy'];
 
+/**
+ * A recursive generator function that yields objects representing each route and their handlers.
+ *
+ * @param {Object} resources Contains all resources and their actions.
+ * @param {String} prefix String to prepend to URL when generating routes.
+ * @param {String} resourceName Name of the current resource we are processing.
+ *
+ * @return {Iterable}
+ */
 function* getRESTRoutes(resources, prefix, resourceName = '') {
   const singularizedName = pluralize(resourceName, 1);
 
@@ -79,9 +88,23 @@ function* getRESTRoutes(resources, prefix, resourceName = '') {
   }
 }
 
-export default function resourceRoutes(resources, prefix = '/') {
+/**
+ * Creates the middleware given resources and their actions.
+ *
+ * @param {Object} resources Contains all resources and their actions.
+ * @param {Object} options
+ *   @param {String} options.urlPrefix String to prepend to all route URLs.
+ *
+ * @return {GeneratorFunction} The middleware.
+ */
+export default function resourceRoutes(resources, options) {
+  const { urlPrefix } = options;
+
+  // Default parameters
+  urlPrefix = urlPrefix || '';
+
   // Get REST routes from resources
-  const routes = Array.from(getRESTRoutes(resources, prefix));
+  const routes = Array.from(getRESTRoutes(resources, urlPrefix));
 
   return function* middleware(next) {
     const routeFilter = routes.filter(route => (
@@ -101,4 +124,3 @@ export default function resourceRoutes(resources, prefix = '/') {
     yield* next;
   };
 }
-

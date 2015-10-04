@@ -61,7 +61,9 @@ var app = koa();
 // Other middleware should go here; resourceRoutes should be last
 
 // Pass resources into middleware, and set URL prefix to '/v1'
-app.use(resourceRoutes(resources, '/v1'));
+app.use(resourceRoutes(resources, {
+  urlPrefix: '/v1',
+}));
 
 app.listen(3000);
 ```
