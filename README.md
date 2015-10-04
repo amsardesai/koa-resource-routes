@@ -29,29 +29,29 @@ var resourceRoutes = require('koa-resource-routes');
 var resources = {
   users: {
     index: function* () {
-      // GET /users
+      // GET /v1/users
     },
     new: function* () {
-      // GET /users/new
+      // GET /v1/users/new
     },
     create: function* () {
-      // POST /users
+      // POST /v1/users
     },
     show: function* (userId) {
-      // GET /users/:userId
+      // GET /v1/users/:userId
     },
     photos: {
       index: function* (userId) {
-        // GET /users/:userId/photos
+        // GET /v1/users/:userId/photos
       },
       destroy: function* (userId, photoId) {
-        // DELETE /users/:userId/photos/:photoId
+        // DELETE /v1/users/:userId/photos/:photoId
       }
     }
   },
   items: {
     index: function* () {
-      // GET /items
+      // GET /v1/items
     }
   }
 };
@@ -60,7 +60,8 @@ var app = koa();
 
 // Other middleware should go here; resourceRoutes should be last
 
-app.use(resourceRoutes(resources));
+// Pass resources into middleware, and set URL prefix to '/v1'
+app.use(resourceRoutes(resources, '/v1'));
 
 app.listen(3000);
 ```
