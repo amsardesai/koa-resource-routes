@@ -104,7 +104,7 @@ function* getRESTRoutes(resources, prefix, resourceName = '') {
  * @return {GeneratorFunction} The middleware.
  */
 export default function resourceRoutes(resources, options) {
-  const { urlPrefix } = options;
+  let { urlPrefix } = options;
 
   // Default parameters
   urlPrefix = urlPrefix || '';
