@@ -1,5 +1,8 @@
 # koa-resource-routes
 
+[![npm version](https://badge.fury.io/js/koa-resource-routes.svg)](http://badge.fury.io/js/koa-resource-routes)
+[![Dependency Status](https://david-dm.org/amsardesai/koa-resource-routes.svg)](https://david-dm.org/amsardesai/koa-resource-routes)
+
 A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful resource routing.
 
 * Supports routing for nested resources
