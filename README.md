@@ -67,11 +67,11 @@ app.listen(3000);
 
 For an example of how to use this plugin with the
 [ES6 Module Syntax](http://www.2ality.com/2014/09/es6-modules-final.html), check out the
-[Users and Events](./tree/examples/users-and-events) example.
+[Users and Events](./examples/users-and-events) example.
 
 ## Examples
 
-* [Users and Events](./tree/examples/users-and-events)
+* [Users and Events](./examples/users-and-events)
 
 ## Installation
 
