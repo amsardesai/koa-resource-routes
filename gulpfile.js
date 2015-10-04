@@ -20,4 +20,3 @@ gulp.task('build', () => {
     .pipe(size({ title: 'Files' }))
     .pipe(gulp.dest('./build'));
 });
-
