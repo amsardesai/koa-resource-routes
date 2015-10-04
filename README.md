@@ -19,8 +19,8 @@ A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful re
 
 ## Usage
 
-This plugin works by passing in an object that represents each resource and their actions.
-Resources can be nested within each other.
+This plugin works by passing in an object that contains resources and their actions. Resources can
+be nested within each other.
 
 ```js
 var koa = require('koa');
@@ -68,9 +68,12 @@ app.use(resourceRoutes(resources, {
 app.listen(3000);
 ```
 
-For an example of how to use this plugin with the
-[ES6 Module Syntax](http://www.2ality.com/2014/09/es6-modules-final.html), check out the
+For an example of how to use this plugin with the ES6 Module Syntax, check out the
 [Users and Events](./examples/users-and-events) example.
+
+## Options
+
+* `urlPrefix` - Prefix for all URLs
 
 ## Examples
 
