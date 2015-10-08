@@ -22,38 +22,42 @@ A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful re
 
 ## Usage
 
-This plugin works by passing in an object that contains resources and their actions. Resources can
-be nested within each other.
+This plugin is a very lightweight layer on top of `koa-route` that allows you to organize your
+routes based on resources that contain actions.
+
+It all works by passing in an object that contains resources and their actions. Resources can be
+nested within each other.
 
 ```js
 var koa = require('koa');
+var mount = require('koa-mount');
 var resourceRoutes = require('koa-resource-routes');
 
 var resources = {
   users: {
-    index: function* () {
+    index: function* (next) {
       // GET /v1/users
     },
-    new: function* () {
+    new: function* (next) {
       // GET /v1/users/new
     },
-    create: function* () {
+    create: function* (next) {
       // POST /v1/users
     },
-    show: function* (userId) {
-      // GET /v1/users/:userId
+    show: function* (next) {
+      // GET /v1/users/:usersParam
     },
     photos: {
-      index: function* (userId) {
-        // GET /v1/users/:userId/photos
+      index: function* (next) {
+        // GET /v1/users/:usersParam/photos
       },
-      destroy: function* (userId, photoId) {
-        // DELETE /v1/users/:userId/photos/:photoId
+      destroy: function* (next) {
+        // DELETE /v1/users/:usersParam/photos/:photosParam
       }
     }
   },
   items: {
-    index: function* () {
+    index: function* (next) {
       // GET /v1/items
     }
   }
@@ -64,19 +68,28 @@ var app = koa();
 // Other middleware should go here; resourceRoutes should be last
 
 // Pass resources into middleware, and set URL prefix to '/v1'
-app.use(resourceRoutes(resources, {
-  urlPrefix: '/v1',
-}));
+app.use(mount('/v1', resourceRoutes(resources)));
 
 app.listen(3000);
 ```
 
+### URL Parameters
+
+URL parameters for a given route will be in `this.params.<resourceName>Param`. For example, for the
+following method:
+
+```js
+someResource: {
+  show: function* (next) {
+    this.body = 'Currently showing some resource with ID = ' + this.params.someResourceParam;
+  }
+}
+```
+
+### ES6 Module Syntax
+
 For an example of how to use this plugin with the ES6 Module Syntax, check out the
 [Users and Events](./examples/users-and-events) example.
-
-## Options
-
-* `urlPrefix` - Prefix for all URLs
 
 ## Examples
 
