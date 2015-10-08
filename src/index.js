@@ -2,12 +2,72 @@ import compose from 'koa-compose';
 import includes from 'lodash/collection/includes';
 import intersection from 'lodash/array/intersection';
 import keysIn from 'lodash/object/keysIn';
-import { get, post, put, del } from 'koa-route';
+import route from 'koa-route';
 
-const VALID_ACTIONS = ['index', 'show', 'create', 'new', 'edit', 'update', 'destroy'];
+const URL_WITH_NAME = name => `/${name}`;
+const URL_WITH_PARAM = name => `/${name}/${name}Param`;
+const URL_WITH_NEW = name => `/${name}/new`;
+const URL_WITH_EDIT = name => `/${name}/edit`;
+
+// Constant containing our actions
+const ACTIONS = {
+  'index': {
+    method: 'get',
+    url: URL_WITH_NAME,
+    similar: ['create'],
+  },
+  'show': {
+    method: 'get',
+    url: URL_WITH_PARAM,
+    similar: ['update', 'destroy'],
+  },
+  'create': {
+    method: 'post',
+    url: URL_WITH_NAME,
+    similar: ['index'],
+  },
+  'new': {
+    method: 'get',
+    url: URL_WITH_NEW,
+    similar: [],
+  },
+  'edit': {
+    method: 'get',
+    url: URL_WITH_EDIT,
+    similar: [],
+  },
+  'update': {
+    method: 'put',
+    url: URL_WITH_PARAM,
+    similar: ['show', 'destroy'],
+  },
+  'destroy': {
+    method: 'delete',
+    url: URL_WITH_PARAM,
+    similar: ['show', 'update'],
+  },
+};
 
 /**
- * A recursive generator function that yields objects representing each route and their handlers.
+ * A simple middleware that responds to disallowed methods with a 405 response.
+ *
+ * @param {Array.<String>} actionList List of implemented actions
+ * @param {Array.<String>} similarActions List of relevant actions
+ *
+ * @return {GeneratorFunction}
+ */
+function methodNotAllowed(actionList, similarActions) {
+  let relevantMethods = similarActions.map(action => ACTIONS[action].method.toUpperCase());
+  let methods = intersection(actionList, relevantMethods);
+  return function* middleware(next) {
+    this.status = 400;
+    this.set('Allow', methods.join(','));
+    yield* next;
+  };
+}
+
+/**
+ * A recursive generator function that yields koa-route middlewares for each route.
  *
  * @param {Object} resources Contains all resources and their actions.
  * @param {String} prefix String to prepend to URL when generating routes.
@@ -15,46 +75,37 @@ const VALID_ACTIONS = ['index', 'show', 'create', 'new', 'edit', 'update', 'dest
  *
  * @return {Iterable}
  */
-function* getRESTRoutes(resources, prefix = '', resourceName = '') {
+function* getMiddlewares(resources, prefix = '', resourceName = '') {
+
+  // If our resources object is null, return
+  if (resources === null || typeof resources !== 'object') return;
 
   // Determine if this object has actions as properties
-  const hasActions = intersection(keysIn(resources), VALID_ACTIONS).length > 0;
+  const actionList = intersection(keysIn(resources), keysIn(ACTIONS));
+  const hasActions = actionList.length > 0;
 
-  // Iterate through resource object
+  // Iterate through each action if we have at least one action
+  if (hasActions) {
+    // Check for invariant violations
+    if (resourceName === '')
+      throw Error(`The root resource object cannot contain actions.`);
+
+    for (const name in ACTIONS) {
+      const action = ACTIONS[name];
+      yield route[action.method](
+        `${prefix}${action.url(resourceName)}`,
+        resources[name] || methodNotAllowed(actionList, action.similar)
+      );
+    }
+  }
+
+  // Iterate through the rest of the methods (non-actions)
   for (const key in resources) {
-    // If we encounter an action, append a new route
-    if (includes(VALID_ACTIONS, key)) {
+    if (!includes(keysIn(ACTIONS), key)) {
       // Check for invariant violations
       if (typeof resources[key] !== 'function')
         throw Error(`Action '${key}' must be a function.`);
-      if (resourceName === '')
-        throw Error(`Action '${key}' cannot be put in the root resource object.`);
 
-      switch (key) {
-      case 'index':
-        yield get(`${prefix}/${resourceName}`, resources.index);
-        break;
-      case 'show':
-        yield get(`${prefix}/${resourceName}/:${resourceName}Param`, resources.show);
-        break;
-      case 'new':
-        yield get(`${prefix}/${resourceName}/new`, resources.new);
-        break;
-      case 'create':
-        yield post(`${prefix}/${resourceName}`, resources.create);
-        break;
-      case 'edit':
-        yield get(`${prefix}/${resourceName}/:${resourceName}Param/edit`, resources.edit);
-        break;
-      case 'update':
-        yield put(`${prefix}/${resourceName}/:${resourceName}Param`, resources.update);
-        break;
-      case 'destroy':
-        yield del(`${prefix}/${resourceName}/:${resourceName}Param`, resources.destroy);
-        break;
-      default:
-      }
-    } else if (resources !== null && typeof resources === 'object') {
       let innerPrefix;
 
       // Determine prefix to send to inner resource
@@ -67,7 +118,7 @@ function* getRESTRoutes(resources, prefix = '', resourceName = '') {
       }
 
       // Iterate through inner resources
-      yield* getRESTRoutes(resources[key], innerPrefix, key);
+      yield* getMiddlewares(resources[key], innerPrefix, key);
     }
   }
 }
@@ -80,6 +131,6 @@ function* getRESTRoutes(resources, prefix = '', resourceName = '') {
  * @return {GeneratorFunction} The middleware.
  */
 export default function resourceRoutes(resources) {
-  // Use koa-compose on all REST middlewares generated by getRESTRoutes
-  return compose(Array.from(getRESTRoutes(resources)));
+  // Use koa-compose on all REST middlewares generated by getMiddlewares
+  return compose(Array.from(getMiddlewares(resources)));
 }
