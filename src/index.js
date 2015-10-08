@@ -57,7 +57,7 @@ const ACTIONS = {
  * @return {GeneratorFunction}
  */
 function methodNotAllowed(actionList, similarActions) {
-  let methods = intersection(actionList, similarActions).map(
+  const methods = intersection(actionList, similarActions).map(
     action => ACTIONS[action].method.toUpperCase()
   );
 
@@ -78,7 +78,6 @@ function methodNotAllowed(actionList, similarActions) {
  * @return {Iterable}
  */
 function* getMiddlewares(resources, prefix = '', resourceName = '') {
-
   // If our resources object is null, return
   if (resources === null || typeof resources !== 'object') return;
 
@@ -92,14 +91,15 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
   // Iterate through each action if we have at least one action
   if (hasActions) {
     // Check for invariant violations
-    if (resourceName === '')
+    if (resourceName === '') {
       throw Error('The root resource object cannot contain actions.');
+    }
 
     for (const name in ACTIONS) {
       // Check for invariant violations
-      if (typeof resources[name] !== 'undefined' &&
-          typeof resources[name] !== 'function')
-        throw Error(`Action '${key}' must be a function.`);
+      if (typeof resources[name] !== 'undefined' && typeof resources[name] !== 'function') {
+        throw Error(`Action '${name}' must be a function.`);
+      }
 
       const action = ACTIONS[name];
       yield route[action.method](
