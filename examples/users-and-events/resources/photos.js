@@ -1,4 +1,4 @@
 
-export function* create(eventId) {
-  // POST /v1/events/:eventId/photos
+export function* create(next) {
+  // POST /v1/events/:eventsParam/photos
 }

@@ -1,12 +1,12 @@
 
-export function* create() {
+export function* create(next) {
   // POST /v1/users
 }
 
-export function* show(userId) {
-  // GET /v1/users/:userId
+export function* show(next) {
+  // GET /v1/users/:usersParams
 }
 
-export function* update(userId) {
-  // PUT /v1/users/:userId
+export function* update(next) {
+  // PUT /v1/users/:usersParams
 }

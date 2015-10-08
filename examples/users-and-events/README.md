@@ -8,16 +8,37 @@ Users:
 
 * `POST /v1/users` - Create a new user
 * `PUT /v1/users` - Update a user
-* `GET /v1/users/:userId` - Return a specific user given an ID
+* `GET /v1/users/:usersParam` - Return a specific user given an ID
 
 Events:
 
 * `GET /v1/events` - Return a list of events
 * `POST /v1/events` - Create a new event
-* `GET /v1/events/:eventId` - Return a specific event given an ID
-* `PUT /v1/events/:eventId` - Update an event
-* `DELETE /v1/events/:eventId` - Delete an event
+* `GET /v1/events/:eventsParam` - Return a specific event given an ID
+* `PUT /v1/events/:eventsParam` - Update an event
+* `DELETE /v1/events/:eventsParam` - Delete an event
 
 Photos:
 
-* `POST /v1/events/:eventId/photos` - Create a photo for an event
+* `POST /v1/events/:eventsParam/photos` - Create a photo for an event
+
+# Syntax
+
+The gist of this example is to show how you can export other modules and compose various resource
+routes. To compose a resource within another resource, add the following line of code to an
+already existing resource.
+
+```js
+export * as innerResource from './innerResource';
+
+// All of your other routing methods for this resource can go in this file as well.
+
+export function* index(next) {
+  // ...
+}
+
+export function* show(next) {
+  // ...
+}
+```
+

@@ -1,21 +1,21 @@
 export * as photos from './photos';
 
-export function* index() {
+export function* index(next) {
   // GET /v1/events
 }
 
-export function* create() {
+export function* create(next) {
   // POST /v1/events
 }
 
-export function* show(eventId) {
-  // GET /v1/events/:eventId
+export function* show(next) {
+  // GET /v1/events/:eventsParam
 }
 
-export function* update(eventId) {
-  // PUT /v1/events/:eventId
+export function* update(next) {
+  // PUT /v1/events/:eventsParam
 }
 
-export function* destroy(eventId) {
-  // DELETE /v1/events/:eventId
+export function* destroy(next) {
+  // DELETE /v1/events/:eventsParam
 }
