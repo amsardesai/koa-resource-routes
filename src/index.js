@@ -109,8 +109,11 @@ export default function resourceRoutes(resources) {
       pathToRegexp(route.url).test(this.request.url) &&
         route.method === this.request.method
     )).map(route => {
-      const matches = pathToRegexp(route.url).exec(this.request.url);
-      const args = matches.slice(1).filter(match => match).map(decodeURIComponent);
+      const args = pathToRegexp(route.url)
+        .exec(this.request.url)
+        .slice(1)
+        .filter(match => match)
+        .map(decodeURIComponent);
       return { ...route, args };
     });
 
