@@ -57,10 +57,12 @@ const ACTIONS = {
  * @return {GeneratorFunction}
  */
 function methodNotAllowed(actionList, similarActions) {
-  let relevantMethods = similarActions.map(action => ACTIONS[action].method.toUpperCase());
-  let methods = intersection(actionList, relevantMethods);
+  let methods = intersection(actionList, similarActions).map(
+    action => ACTIONS[action].method.toUpperCase()
+  );
+
   return function* middleware(next) {
-    this.status = 400;
+    this.status = 405;
     this.set('Allow', methods.join(','));
     yield* next;
   };
@@ -80,17 +82,25 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
   // If our resources object is null, return
   if (resources === null || typeof resources !== 'object') return;
 
+  // Extract resource keys, and remove any key that starts in an underscore
+  const resourceKeys = keysIn(resources).filter(key => key[0] !== '_');
+
   // Determine if this object has actions as properties
-  const actionList = intersection(keysIn(resources), keysIn(ACTIONS));
+  const actionList = intersection(resourceKeys, keysIn(ACTIONS));
   const hasActions = actionList.length > 0;
 
   // Iterate through each action if we have at least one action
   if (hasActions) {
     // Check for invariant violations
     if (resourceName === '')
-      throw Error(`The root resource object cannot contain actions.`);
+      throw Error('The root resource object cannot contain actions.');
 
     for (const name in ACTIONS) {
+      // Check for invariant violations
+      if (typeof resources[name] !== 'undefined' &&
+          typeof resources[name] !== 'function')
+        throw Error(`Action '${key}' must be a function.`);
+
       const action = ACTIONS[name];
       yield route[action.method](
         `${prefix}${action.url(resourceName)}`,
@@ -100,12 +110,9 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
   }
 
   // Iterate through the rest of the methods (non-actions)
-  for (const key in resources) {
+  for (let index = 0; index < resourceKeys.length; index++) {
+    const key = resourceKeys[index];
     if (!includes(keysIn(ACTIONS), key)) {
-      // Check for invariant violations
-      if (typeof resources[key] !== 'function')
-        throw Error(`Action '${key}' must be a function.`);
-
       let innerPrefix;
 
       // Determine prefix to send to inner resource
