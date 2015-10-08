@@ -2,7 +2,6 @@ import includes from 'lodash/collection/includes';
 import intersection from 'lodash/array/intersection';
 import keysIn from 'lodash/object/keysIn';
 import pathToRegexp from 'path-to-regexp';
-import pluralize from 'pluralize';
 
 const VALID_ACTIONS = ['index', 'show', 'create', 'new', 'edit', 'update', 'destroy'];
 
@@ -16,7 +15,6 @@ const VALID_ACTIONS = ['index', 'show', 'create', 'new', 'edit', 'update', 'dest
  * @return {Iterable}
  */
 function* getRESTRoutes(resources, prefix = '', resourceName = '') {
-  const singularizedName = pluralize(resourceName, 1);
 
   // Determine if this object has actions as properties
   const hasActions = intersection(keysIn(resources), VALID_ACTIONS).length > 0;
@@ -40,7 +38,7 @@ function* getRESTRoutes(resources, prefix = '', resourceName = '') {
         break;
       case 'show': yield {
         method: 'GET',
-        url: `${prefix}/${resourceName}/:${singularizedName}`,
+        url: `${prefix}/${resourceName}/:${resourceName}Param`,
         handler: resources.show,
       };
         break;
@@ -58,19 +56,19 @@ function* getRESTRoutes(resources, prefix = '', resourceName = '') {
         break;
       case 'edit': yield {
         method: 'GET',
-        url: `${prefix}/${resourceName}/:${singularizedName}/edit`,
+        url: `${prefix}/${resourceName}/:${resourceName}Param/edit`,
         handler: resources.edit,
       };
         break;
       case 'update': yield {
         method: 'PUT',
-        url: `${prefix}/${resourceName}/:${singularizedName}`,
+        url: `${prefix}/${resourceName}/:${resourceName}Param`,
         handler: resources.update,
       };
         break;
       case 'destroy': yield {
         method: 'DELETE',
-        url: `${prefix}/${resourceName}/:${singularizedName}`,
+        url: `${prefix}/${resourceName}/:${resourceName}Param`,
         handler: resources.destroy,
       };
         break;
@@ -83,7 +81,7 @@ function* getRESTRoutes(resources, prefix = '', resourceName = '') {
       if (resourceName === '') {
         innerPrefix = prefix;
       } else if (hasActions) {
-        innerPrefix = `${prefix}/${resourceName}/:${singularizedName}`;
+        innerPrefix = `${prefix}/${resourceName}/:${resourceName}Param`;
       } else {
         innerPrefix = `${prefix}/${resourceName}`;
       }
@@ -117,7 +115,7 @@ export default function resourceRoutes(resources) {
     });
 
     if (routeFilter.length) {
-      for (const route of routeFilter) yield* route.handler.apply(this, route.args);
+      for (const route of routeFilter) yield* route.handler.call(this, next);
       return;
     }
 
