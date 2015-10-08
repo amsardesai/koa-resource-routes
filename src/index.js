@@ -15,7 +15,7 @@ const VALID_ACTIONS = ['index', 'show', 'create', 'new', 'edit', 'update', 'dest
  *
  * @return {Iterable}
  */
-function* getRESTRoutes(resources, prefix, resourceName = '') {
+function* getRESTRoutes(resources, prefix = '', resourceName = '') {
   const singularizedName = pluralize(resourceName, 1);
 
   // Determine if this object has actions as properties
@@ -98,19 +98,13 @@ function* getRESTRoutes(resources, prefix, resourceName = '') {
  * Creates the middleware given resources and their actions.
  *
  * @param {Object} resources Contains all resources and their actions.
- * @param {Object} options
- *   @param {String} options.urlPrefix String to prepend to all route URLs.
  *
  * @return {GeneratorFunction} The middleware.
  */
-export default function resourceRoutes(resources, options) {
-  let { urlPrefix } = options;
-
-  // Default parameters
-  urlPrefix = urlPrefix || '';
+export default function resourceRoutes(resources) {
 
   // Get REST routes from resources
-  const routes = Array.from(getRESTRoutes(resources, urlPrefix));
+  const routes = Array.from(getRESTRoutes(resources));
 
   return function* middleware(next) {
     const routeFilter = routes.filter(route => (
