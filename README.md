@@ -23,10 +23,10 @@ A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful re
 ## Usage
 
 This plugin is a very lightweight layer on top of `koa-route` that allows you to organize your
-routes based on resources that contain actions.
+*routes* based on *resources* that contain *actions*.
 
-It all works by passing in an object that contains resources and their actions. Resources can be
-nested within each other.
+It all works by passing in an object that contains a structured representation of your resources
+and actions. Resources can be nested within each other resources.
 
 ```js
 var koa = require('koa');
@@ -75,13 +75,15 @@ app.listen(3000);
 
 ### URL Parameters
 
-URL parameters for a given route will be in `this.params.<resourceName>Param`. For example, for the
-following method:
+URL parameters for a given route will be in `this.params.<resourceName>Param`. Here's an example
+for a resource called `someResource`.
 
 ```js
-someResource: {
-  show: function* (next) {
-    this.body = 'Currently showing some resource with ID = ' + this.params.someResourceParam;
+{
+  someResource: {
+    show: function* (next) {
+      this.body = 'Currently showing some resource with ID = ' + this.params.someResourceParam;
+    }
   }
 }
 ```
