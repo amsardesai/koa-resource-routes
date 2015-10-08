@@ -7,6 +7,7 @@ A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful re
 
 * Supports routing for nested resources
 * Works great with [ES6 Module Syntax](http://www.2ality.com/2014/09/es6-modules-final.html)
+* Returns `405 No Method Found` when no method is found
 
 ### Rails-style Routing
 
