@@ -8,6 +8,7 @@ const URL_WITH_NAME = name => `/${name}`;
 const URL_WITH_PARAM = name => `/${name}/${name}Param`;
 const URL_WITH_NEW = name => `/${name}/new`;
 const URL_WITH_EDIT = name => `/${name}/edit`;
+const URL_EMPTY = name => '';
 
 // Constant containing our actions
 const ACTIONS = {
@@ -113,19 +114,11 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
   for (let index = 0; index < resourceKeys.length; index++) {
     const key = resourceKeys[index];
     if (!includes(keysIn(ACTIONS), key)) {
-      let innerPrefix;
-
-      // Determine prefix to send to inner resource
-      if (resourceName === '') {
-        innerPrefix = prefix;
-      } else if (hasActions) {
-        innerPrefix = `${prefix}/${resourceName}/:${resourceName}Param`;
-      } else {
-        innerPrefix = `${prefix}/${resourceName}`;
-      }
+      // Determine which URL prefix function to use
+      const url = resourceName === '' ? URL_EMPTY : hasActions : URL_WITH_PARAM : URL_WITH_NAME;
 
       // Iterate through inner resources
-      yield* getMiddlewares(resources[key], innerPrefix, key);
+      yield* getMiddlewares(resources[key], `${prefix}${url(resourceName)}`, key);
     }
   }
 }
