@@ -22,7 +22,8 @@ A lightweight middleware for [Koa](http://koajs.com/) for RESTful action-based r
 ## Usage
 
 This plugin is a very lightweight layer on top of `koa-route` that allows you to organize your
-*routes* based on *resources* that contain *actions*. Only five actions are supported:
+*routes* based on *resources* that contain *actions*. Five fundamental resource actions are
+supported:
 
 * `index`: Returns a list of the resources.
 * `create`: Creates a resource.
