@@ -3,13 +3,13 @@
 [![npm version](https://badge.fury.io/js/koa-resource-routes.svg)](http://badge.fury.io/js/koa-resource-routes)
 [![Dependency Status](https://david-dm.org/amsardesai/koa-resource-routes.svg)](https://david-dm.org/amsardesai/koa-resource-routes)
 
-A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful resource routing.
+A lightweight middleware for [Koa](http://koajs.com/) for RESTful action-based resource routing.
 
 * Supports routing for nested resources
 * Works great with [ES6 Module Syntax](http://www.2ality.com/2014/09/es6-modules-final.html)
 * Returns `405 No Method Found` when no method is found
 
-### Rails-style Routing
+### Action-based Routing
 
 | **Action** | **Route**             |
 |------------|-----------------------|
@@ -84,11 +84,14 @@ for a resource called `someResource`.
 {
   someResource: {
     show: function* (next) {
-      this.body = 'Currently showing some resource with ID = ' + this.params.someResourceParam;
+      this.body = 'Currently showing some resource with param = ' + this.params.someResourceParam;
     }
   }
 }
 ```
+
+Parameters are designed to be completely flexible. You have the choice of putting a numerical
+identifier or a slug.
 
 ### ES6 Module Syntax
 
