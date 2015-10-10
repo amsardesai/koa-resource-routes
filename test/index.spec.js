@@ -146,7 +146,6 @@ describe('koa-resource-routes', () => {
         .end(done);
     });
 
-
   });
 
 });
