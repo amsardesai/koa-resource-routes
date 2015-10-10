@@ -23,19 +23,19 @@ function createMethod(method) {
    * @return {GeneratorFunction} Middleware representing the next route.
    */
   return function createMiddleware(path, handler) {
-    const pathRegex = pathToRegexp(path, keys, { sensitive: true });
+    const pathRegex = pathToRegexp(path);
     const { keys } = pathRegex;
     return function* middleware(next) {
       // Check to see if this is the route we want.
       if (this.method !== method) return yield* next;
 
-      let match;
+      const match = pathRegex.exec(this.path);
 
       // Check if it matches our route.
-      if (match = pathRegex.exec(this.path)) {
+      if (match) {
         this.params = this.params || {};
         match.slice(1)
-          .filter(match => match)
+          .filter(param => param)
           .map(decodeURIComponent)
           .forEach((param, index) => this.params[keys[index].name] = param);
         return yield handler.call(this, next);
@@ -43,12 +43,12 @@ function createMethod(method) {
 
       // Missed the route url check.
       return yield* next;
-    }
-  }
+    };
+  };
 }
 
 // Create empty routes object
-let routes = {};
+const routes = {};
 
 // Create each method that needs to be created
 methods
