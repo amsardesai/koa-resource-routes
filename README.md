@@ -11,20 +11,24 @@ A lightweight middleware for [Koa](http://koajs.com/) for Rails-style RESTful re
 
 ### Rails-style Routing
 
-| **Action** | **Route**            |
-|------------|----------------------|
-| index      | `GET /item`          |
-| new        | `GET /item/new`      |
-| create     | `POST /item`         |
-| show       | `GET /item/:id`      |
-| edit       | `GET /item/:id/edit` |
-| update     | `PUT /item/:id`      |
-| destroy    | `DELETE /item/:id`   |
+| **Action** | **Route**             |
+|------------|-----------------------|
+| index      | `GET /item`           |
+| create     | `POST /item`          |
+| show       | `GET /item/:param`    |
+| update     | `PUT /item/:param`    |
+| destroy    | `DELETE /item/:param` |
 
 ## Usage
 
 This plugin is a very lightweight layer on top of `koa-route` that allows you to organize your
-*routes* based on *resources* that contain *actions*.
+*routes* based on *resources* that contain *actions*. Only five actions are supported:
+
+* `index`: Returns a list of the resources.
+* `create`: Creates a resource.
+* `show`: Shows a specific resource.
+* `update`: Updates a specific resource.
+* `destroy`: Destroys a specific resource.
 
 It all works by passing in an object that contains a structured representation of your resources
 and actions. Resources can be nested within other resources.
@@ -38,9 +42,6 @@ var resources = {
   users: {
     index: function* (next) {
       // GET /v1/users
-    },
-    new: function* (next) {
-      // GET /v1/users/new
     },
     create: function* (next) {
       // POST /v1/users

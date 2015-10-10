@@ -7,16 +7,16 @@ events, and photos in events. This example shows how to implement the following 
 Users:
 
 * `POST /v1/users` - Create a new user
-* `PUT /v1/users` - Update a user
 * `GET /v1/users/:usersParam` - Return a specific user given an ID
+* `PUT /v1/users/:usersParam` - Update a specific user given an ID
 
 Events:
 
 * `GET /v1/events` - Return a list of events
 * `POST /v1/events` - Create a new event
 * `GET /v1/events/:eventsParam` - Return a specific event given an ID
-* `PUT /v1/events/:eventsParam` - Update an event
-* `DELETE /v1/events/:eventsParam` - Delete an event
+* `PUT /v1/events/:eventsParam` - Update a specific event given an ID
+* `DELETE /v1/events/:eventsParam` - Delete a specific event given an ID
 
 Photos:
 

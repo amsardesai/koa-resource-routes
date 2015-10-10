@@ -1,0 +1,8 @@
+{
+  "stage": 0,
+  "loose": true,
+  "blacklist": [
+    "regenerator",
+    "react"
+  ]
+}

@@ -10,14 +10,7 @@ let size = require('gulp-size');
  */
 gulp.task('build', ['lint'], () => {
   return gulp.src('./src/*.js')
-    .pipe(babel({
-      stage: 0,
-      loose: true,
-      blacklist: [
-        'regenerator',
-        'react',
-      ],
-    }))
+    .pipe(babel())
     .pipe(size({ title: 'Files' }))
     .pipe(gulp.dest('./build'));
 });

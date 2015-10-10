@@ -2,12 +2,12 @@ import compose from 'koa-compose';
 import includes from 'lodash/collection/includes';
 import intersection from 'lodash/array/intersection';
 import keysIn from 'lodash/object/keysIn';
-import route from 'koa-route';
 
+import route from './routes';
+
+// Function constants representing each URL scheme
 const URL_WITH_NAME = name => `/${name}`;
-const URL_WITH_PARAM = name => `/${name}/${name}Param`;
-const URL_WITH_NEW = name => `/${name}/new`;
-const URL_WITH_EDIT = name => `/${name}/edit`;
+const URL_WITH_PARAM = name => `/${name}/:${name}Param`;
 const URL_EMPTY = () => '';
 
 // Constant containing our actions
@@ -26,16 +26,6 @@ const ACTIONS = {
     method: 'post',
     url: URL_WITH_NAME,
     similar: ['index'],
-  },
-  'new': {
-    method: 'get',
-    url: URL_WITH_NEW,
-    similar: [],
-  },
-  'edit': {
-    method: 'get',
-    url: URL_WITH_EDIT,
-    similar: [],
   },
   'update': {
     method: 'put',
@@ -103,7 +93,7 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
       }
 
       const action = ACTIONS[name];
-      yield route[action.method](
+      yield route[action.method.toUpperCase()](
         `${prefix}${action.url(resourceName)}`,
         resources[name] || methodNotAllowed(actionList, action.similar)
       );
@@ -116,6 +106,7 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
     if (!includes(keysIn(ACTIONS), key)) {
       let url;
 
+      // Decide which URL scheme to send down the recursive chain
       if (resourceName === '') {
         url = URL_EMPTY;
       } else if (hasActions) {
