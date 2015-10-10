@@ -27,7 +27,7 @@ This plugin is a very lightweight layer on top of `koa-route` that allows you to
 *routes* based on *resources* that contain *actions*.
 
 It all works by passing in an object that contains a structured representation of your resources
-and actions. Resources can be nested within each other resources.
+and actions. Resources can be nested within other resources.
 
 ```js
 var koa = require('koa');
