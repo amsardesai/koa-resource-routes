@@ -1,5 +1,6 @@
 # koa-resource-routes
 
+[![Build Status](https://travis-ci.org/amsardesai/koa-resource-routes.svg?branch=master)](https://travis-ci.org/amsardesai/koa-resource-routes)
 [![npm version](https://badge.fury.io/js/koa-resource-routes.svg)](http://badge.fury.io/js/koa-resource-routes)
 [![Dependency Status](https://david-dm.org/amsardesai/koa-resource-routes.svg)](https://david-dm.org/amsardesai/koa-resource-routes)
 
