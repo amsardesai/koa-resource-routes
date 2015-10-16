@@ -77,6 +77,34 @@ describe('koa-resource-routes', () => {
 
   });
 
+  describe('alias routing', () => {
+
+    it('can route default method', done => {
+      app.use(resourceRoutes({
+        events: {
+          default: utils.successPlaceholder,
+        },
+      }));
+      request(app.callback())
+        .get('/events')
+        .expect(200, 'success!')
+        .end(done);
+    });
+
+    it('can route main method', done => {
+      app.use(resourceRoutes({
+        events: {
+          main: utils.successPlaceholder,
+        },
+      }));
+      request(app.callback())
+        .get('/events')
+        .expect(200, 'success!')
+        .end(done);
+    });
+
+  });
+
   describe('405 errors', () => {
 
     it('gives 405 when index is not defined but create is', done => {
@@ -103,6 +131,19 @@ describe('koa-resource-routes', () => {
         .put('/events/1')
         .expect(405)
         .expect('Allow','GET,DELETE')
+        .end(done);
+    });
+
+    it('gives 405 when doing DELETE on an index route', done => {
+      app.use(resourceRoutes({
+        events: {
+          index: utils.successPlaceholder,
+        },
+      }));
+      request(app.callback())
+        .delete('/events')
+        .expect(405)
+        .expect('Allow','GET')
         .end(done);
     });
 
@@ -145,6 +186,55 @@ describe('koa-resource-routes', () => {
         .expect(200, 'param: Some-STRING_!@+lol')
         .end(done);
     });
+
+    it('allows long strings in resource names', done => {
+      let longString = Array(100).join('areallylongstring');
+      app.use(resourceRoutes({
+        [longString]: {
+          destroy: utils.parameterCheck(`${longString}Param`),
+        },
+      }));
+      request(app.callback())
+        .delete(`/${longString}/a-random-param`)
+        .expect(200, `param: a-random-param`)
+        .end(done);
+    });
+
+    it('doesnt allow resource names that start with an underscore', done => {
+      app.use(resourceRoutes({
+        '_events': {
+          index: utils.successPlaceholder,
+        },
+      }));
+      request(app.callback())
+        .get('/_events')
+        .expect(404)
+        .end(done);
+    });
+
+  });
+
+  describe('errors', () => {
+
+    it('errors when root resource has an action', () => {
+      expect(() => {
+        app.use(resourceRoutes({
+          index: utils.successPlaceholder,
+        }));
+      }).to.throw('The root resource object cannot contain actions.');
+    });
+
+    it('errors when duplicate routes are defined', () => {
+      expect(() => {
+        app.use(resourceRoutes({
+          events: {
+            index: utils.successPlaceholder,
+            default: utils.successPlaceholder,
+          },
+        }));
+      }).to.throw('The following methods mean the same thing and cannot be defined in the same ' +
+        'object: index, default');
+    })
 
   });
 

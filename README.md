@@ -4,21 +4,21 @@
 [![npm version](https://badge.fury.io/js/koa-resource-routes.svg)](http://badge.fury.io/js/koa-resource-routes)
 [![Dependency Status](https://david-dm.org/amsardesai/koa-resource-routes.svg)](https://david-dm.org/amsardesai/koa-resource-routes)
 
-A lightweight middleware for [Koa](http://koajs.com/) for RESTful action-based resource routing.
+A lightweight middleware for [Koa](http://koajs.com/) for declarative action-based routing.
 
+* Encourages modular RESTful routing scheme
+* Actions are similar to established Rails routing conventions
 * Supports routing for nested resources
-* Works great with [ES6 Module Syntax](http://www.2ality.com/2014/09/es6-modules-final.html)
-* Returns `405 No Method Found` when no method is found
 
 ### Action-based Routing
 
-| **Action** | **Route**             |
-|------------|-----------------------|
-| index      | `GET /item`           |
-| create     | `POST /item`          |
-| show       | `GET /item/:param`    |
-| update     | `PUT /item/:param`    |
-| destroy    | `DELETE /item/:param` |
+| **Action** | **Route**             | **Aliases**       |
+|------------|-----------------------|-------------------|
+| index      | `GET /item`           | `default`, `main` |
+| create     | `POST /item`          |                   |
+| show       | `GET /item/:param`    |                   |
+| update     | `PUT /item/:param`    |                   |
+| destroy    | `DELETE /item/:param` |                   |
 
 ## Usage
 

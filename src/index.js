@@ -1,9 +1,6 @@
 import compose from 'koa-compose';
-import includes from 'lodash/collection/includes';
-import intersection from 'lodash/array/intersection';
-import keysIn from 'lodash/object/keysIn';
 
-import route from './routes';
+import createRoute from './routes';
 
 // Function constants representing each URL scheme
 const URL_WITH_NAME = name => `/${name}`;
@@ -16,48 +13,33 @@ const ACTIONS = {
     method: 'get',
     url: URL_WITH_NAME,
     similar: ['create'],
+    aliases: ['default', 'main'],
   },
   'show': {
     method: 'get',
     url: URL_WITH_PARAM,
     similar: ['update', 'destroy'],
+    aliases: [],
   },
   'create': {
     method: 'post',
     url: URL_WITH_NAME,
     similar: ['index'],
+    aliases: [],
   },
   'update': {
     method: 'put',
     url: URL_WITH_PARAM,
     similar: ['show', 'destroy'],
+    aliases: [],
   },
   'destroy': {
     method: 'delete',
     url: URL_WITH_PARAM,
     similar: ['show', 'update'],
+    aliases: [],
   },
 };
-
-/**
- * A simple middleware that responds to disallowed methods with a 405 response.
- *
- * @param {Array.<String>} actionList List of implemented actions
- * @param {Array.<String>} similarActions List of relevant actions
- *
- * @return {GeneratorFunction}
- */
-function methodNotAllowed(actionList, similarActions) {
-  const methods = intersection(actionList, similarActions).map(
-    action => ACTIONS[action].method.toUpperCase()
-  );
-
-  return function* middleware(next) {
-    this.status = 405;
-    this.set('Allow', methods.join(','));
-    yield* next;
-  };
-}
 
 /**
  * A recursive generator function that yields koa-route middlewares for each route.
@@ -72,44 +54,80 @@ function* getMiddlewares(resources, prefix = '', resourceName = '') {
   // If our resources object is null, return
   if (resources === null || typeof resources !== 'object') return;
 
-  // Extract resource keys, and remove any key that starts in an underscore
-  const resourceKeys = keysIn(resources).filter(key => key[0] !== '_');
+  // Create an array of arrays of related actions.
+  const groupedActions = Object.keys(ACTIONS)
+    .map(action => [ action, ...ACTIONS[action].aliases ]);
 
-  // Determine if this object has actions as properties
-  const actionList = intersection(resourceKeys, keysIn(ACTIONS));
-  const hasActions = actionList.length > 0;
+  // Reduce groupedActions to get one giant list of actions.
+  const reducedActions = groupedActions
+    .reduce((prev, action) => prev.concat(action), []);
+
+  // Extract resource keys, and remove any key that starts in an underscore and isn't a function.
+  const resourceKeys = Object.keys(resources)
+    .filter(action => action[0] !== '_')
+    .filter(key => typeof resources[key] === 'function' || typeof resources[key] === 'object');
+
+  // Get a list of actions/aliases that are used in this resource that are functions.
+  const actionList = reducedActions
+    .filter(action => resourceKeys.indexOf(action) !== -1)
+    .filter(action => typeof resources[action] === 'function');
 
   // Iterate through each action if we have at least one action
-  if (hasActions) {
-    // Check for invariant violations
-    if (resourceName === '') {
+  if (actionList.length > 0) {
+    // Checks if actions/aliases are mentioned in the same object twice.
+    const duplicatedActions = groupedActions
+      .map(actions => actionList.filter(action => actions.indexOf(action) !== -1))
+      .filter(actions => actions.length > 1);
+
+    // Perform invariant checks.
+    if (duplicatedActions.length > 0) {
+      throw Error(
+        'The following methods mean the same thing and cannot be defined in the same object: ' +
+          duplicatedActions[0].join(', ')
+      );
+    } else if (resourceName === '') {
       throw Error('The root resource object cannot contain actions.');
     }
 
-    for (const name in ACTIONS) {
-      // Check for invariant violations
-      if (typeof resources[name] !== 'undefined' && typeof resources[name] !== 'function') {
-        throw Error(`Action '${name}' must be a function.`);
-      }
+    // Resolve alias names and make an array of routes to create
+    const resolvedActions = actionList
+      .map(action => ({
+        name: groupedActions.filter(actions => actions.indexOf(action) !== -1)[0][0],
+        alias: action,
+      }))
+      .map(action => ({
+        ...action,
+        handler: resources[action.alias],
+        url: ACTIONS[action.name].url,
+        method: ACTIONS[action.name].method,
+      }));
 
-      const action = ACTIONS[name];
-      yield route[action.method.toUpperCase()](
-        `${prefix}${action.url(resourceName)}`,
-        resources[name] || methodNotAllowed(actionList, action.similar)
-      );
+    // List of URL types
+    const urlTypes = [ URL_WITH_NAME, URL_WITH_PARAM ];
+
+    // Iterate through each URL type
+    for (const urlType of urlTypes) {
+      // Generate object of methods to handlers for a given URL type
+      const handlers = resolvedActions
+        .filter(action => action.url === urlType)
+        .reduce((prev, obj) => ({ ...prev, [obj.method]: obj.handler }), {});
+
+      // Check if our list of handlers is not empty
+      if (Object.keys(handlers).length !== 0) {
+        yield createRoute(`${prefix}${urlType(resourceName)}`, handlers);
+      }
     }
   }
 
   // Iterate through the rest of the methods (non-actions)
-  for (let index = 0; index < resourceKeys.length; index++) {
-    const key = resourceKeys[index];
-    if (!includes(keysIn(ACTIONS), key)) {
+  for (const key of resourceKeys) {
+    if (!reducedActions.includes(key)) {
       let url;
 
       // Decide which URL scheme to send down the recursive chain
       if (resourceName === '') {
         url = URL_EMPTY;
-      } else if (hasActions) {
+      } else if (actionList.length > 0) {
         url = URL_WITH_PARAM;
       } else {
         url = URL_WITH_NAME;
