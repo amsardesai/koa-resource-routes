@@ -1,6 +1,6 @@
 import compose from 'koa-compose';
 
-import createRoute from './routes';
+import createRoute from './createRoute';
 
 // Function constants representing each URL scheme
 const URL_WITH_NAME = name => `/${name}`;
