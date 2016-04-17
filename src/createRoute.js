@@ -15,8 +15,8 @@ import pathToRegexp from 'path-to-regexp';
  * @return {GeneratorFunction} Middleware representing the next route.
  */
 export default function createRoute(path, methods) {
-  const pathRegex = pathToRegexp(path);
-  const { keys } = pathRegex;
+  const keys = []
+  const pathRegex = pathToRegexp(path, keys);
 
   return function* middleware(next) {
     const match = pathRegex.exec(this.path);
